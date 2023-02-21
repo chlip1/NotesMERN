@@ -5,7 +5,8 @@ import NewNote from "./NewNote/NewNote";
 import Modal from "react-modal"
 import EditNote from "./EditNote/EditNote";
 import axios from '../../axios'
-
+import {NotificationContainer, NotificationManager} from 'react-notifications'
+import 'react-notifications/lib/notifications.css';
 class Notes extends React.Component {
     constructor(props){
         super(props);
@@ -50,11 +51,15 @@ class Notes extends React.Component {
     async addNote(note) {
         const notes = [...this.state.notes];
         // add to backend
-        const res = await axios.post('/notes', note)
-        const newNote = res.data;
-        // add to frontend
-        notes.push(newNote);
-        this.setState({ notes })
+        try{
+            const res = await axios.post('/notes', note)
+            const newNote = res.data;
+            // add to frontend
+            notes.push(newNote);
+            this.setState({ notes })
+        } catch (err) {
+            NotificationManager.error(err.response.data.message)
+        }
     }
 
     async editNote(note) {
@@ -83,6 +88,7 @@ class Notes extends React.Component {
     render() {
         return (
             <div>
+                <NotificationContainer/>
                 <p>Moje notatki</p>
                 <NewNote
                     onAdd={(note) => this.addNote(note)}
